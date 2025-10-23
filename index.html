@@ -3,88 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VR Interactive Gallery</title>
+    <title>Interactive 3D Media Viewer</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script>
-      // Interactive object component
-      AFRAME.registerComponent("interactive-object", {
+      // Component to change the main screen image
+      AFRAME.registerComponent("media-button", {
         schema: {
-          label: { type: "string", default: "Object" },
+          src: { type: "string" },
         },
-        init: function () {
-          const el = this.el;
-          const originalScale = el.object3D.scale.clone();
-          const originalColor = el.getAttribute("material").color;
-
-          // Create floating label (initially hidden)
-          const label = document.createElement("a-entity");
-          label.setAttribute("text", {
-            value: this.data.label,
-            align: "center",
-            width: 3,
-            color: "#ffffff",
-          });
-          label.setAttribute("position", "0 1.5 0");
-          label.setAttribute("visible", false);
-          el.appendChild(label);
-
-          // Hover interaction
-          el.addEventListener("mouseenter", () => {
-            el.setAttribute("animation__scale", {
-              property: "scale",
-              to: `${originalScale.x * 1.3} ${originalScale.y * 1.3} ${originalScale.z * 1.3}`,
-              dur: 300,
-              easing: "easeOutElastic",
-            });
-            label.setAttribute("visible", true);
-          });
-
-          // Leave interaction
-          el.addEventListener("mouseleave", () => {
-            el.setAttribute("animation__scale", {
-              property: "scale",
-              to: `${originalScale.x} ${originalScale.y} ${originalScale.z}`,
-              dur: 300,
-              easing: "easeOutElastic",
-            });
-            label.setAttribute("visible", false);
-          });
-
-          // Click color flash
-          el.addEventListener("click", () => {
-            el.setAttribute("animation__color", {
-              property: "material.color",
-              from: "#FFFFFF",
-              to: originalColor,
-              dur: 600,
-              easing: "easeInOutQuad",
-            });
-          });
-        },
-      });
-
-      // Teleport component
-      AFRAME.registerComponent("teleport-point", {
-        schema: { target: { type: "vec3" } },
         init: function () {
           const el = this.el;
           const data = this.data;
-          const camera = document.querySelector("#camera");
 
-          el.addEventListener("click", () => {
-            camera.setAttribute("animation__move", {
-              property: "position",
-              to: `${data.target.x} ${data.target.y} ${data.target.z}`,
-              dur: 800,
-              easing: "easeInOutQuad",
-            });
-          });
-
+          // visual feedback: hover, click
           el.addEventListener("mouseenter", () => {
-            el.setAttribute("scale", "1.3 1.3 1.3");
+            el.setAttribute("scale", "1.2 1.2 1.2");
           });
           el.addEventListener("mouseleave", () => {
             el.setAttribute("scale", "1 1 1");
+          });
+          el.addEventListener("mousedown", () => {
+            el.setAttribute("material", "color", "#FFD700");
+          });
+          el.addEventListener("mouseup", () => {
+            el.setAttribute("material", "color", "#FFFFFF");
+          });
+
+          // on click, update the main screen texture
+          el.addEventListener("click", () => {
+            const screen = document.querySelector("#media-screen");
+            if (data.src.endsWith(".mp4")) {
+              // if it's a video
+              const video = document.querySelector("#video1");
+              video.pause();
+              video.setAttribute("src", data.src);
+              video.play();
+              screen.setAttribute("material", "src", "#video1");
+            } else {
+              // if it's an image
+              screen.setAttribute("material", "src", data.src);
+            }
           });
         },
       });
@@ -93,108 +51,121 @@
 
   <body>
     <a-scene>
-      <!-- Camera -->
-      <a-entity
-        id="camera"
-        camera
-        position="0 1.6 5"
-        look-controls
-        wasd-controls
-      >
-        <a-cursor
-          color="#FFD700"
-          fuse="true"
-          fuse-timeout="1200"
-          raycaster="objects: .interactive, .teleport"
-        ></a-cursor>
+      <!-- Camera with laser controls (for VR controllers) -->
+      <a-entity id="rig" position="0 1.6 3">
+        <a-entity camera look-controls wasd-controls>
+          <a-entity
+            laser-controls="hand: right"
+            raycaster="objects: .clickable"
+            line="color: #FFD700; opacity: 0.9"
+          ></a-entity>
+          <a-entity
+            hand-tracking-controls="hand: left"
+          ></a-entity>
+        </a-entity>
       </a-entity>
 
-      <!-- Lights -->
-      <a-light type="ambient" color="#BBB" intensity="0.8"></a-light>
-      <a-light
-        type="directional"
-        color="#FFF"
-        intensity="0.6"
-        position="2 4 2"
-      ></a-light>
+      <!-- Lighting -->
+      <a-light type="ambient" intensity="0.7"></a-light>
+      <a-light type="directional" position="2 4 2" intensity="0.8"></a-light>
 
       <!-- Environment -->
-      <a-sky color="#87CEEB"></a-sky>
+      <a-sky color="#222"></a-sky>
       <a-plane
         rotation="-90 0 0"
-        width="30"
-        height="30"
-        color="#7BC8A4"
+        width="20"
+        height="20"
+        color="#444"
       ></a-plane>
 
-      <!-- Interactive Objects -->
-      <a-sphere
-        class="interactive"
-        position="-3 1.5 -2"
-        radius="0.8"
-        color="#FF6B9D"
-        metalness="0.8"
-        roughness="0.2"
-        interactive-object="label: Crystal Sphere"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 8000; easing: linear"
-      ></a-sphere>
+      <!-- Big media screen -->
+      <a-plane
+        id="media-screen"
+        position="0 3 -5"
+        width="6"
+        height="3.5"
+        color="#000"
+        material="shader: flat; src: #img1"
+      ></a-plane>
 
-      <a-box
-        class="interactive"
-        position="3 1.2 -2"
-        width="1.5"
-        height="1.5"
-        depth="1.5"
-        color="#50C878"
-        metalness="0.7"
-        roughness="0.3"
-        rotation="15 45 0"
-        interactive-object="label: Emerald Cube"
-        animation="property: rotation; to: 375 405 360; loop: true; dur: 10000; easing: linear"
-      ></a-box>
+      <!-- Media sources -->
+      <a-assets>
+        <img id="img1" src="https://cdn.aframe.io/a-painter/images/floor.jpg" />
+        <img
+          id="img2"
+          src="https://cdn.aframe.io/a-painter/images/sky.jpg"
+        />
+        <img
+          id="img3"
+          src="https://cdn.aframe.io/a-painter/images/floor_normal.jpg"
+        />
+        <video
+          id="video1"
+          src="https://cdn.aframe.io/videos/360-video.mp4"
+          autoplay="false"
+          loop="true"
+          crossorigin="anonymous"
+        ></video>
+      </a-assets>
 
-      <a-cone
-        class="interactive"
-        position="0 1 -3"
-        radius-bottom="1"
-        height="2"
+      <!-- Buttons row -->
+      <a-entity position="0 1.5 -3">
+        <a-plane
+          class="clickable"
+          position="-2 0 0"
+          width="1"
+          height="1"
+          src="#img1"
+          material="color: #fff"
+          media-button="src: https://cdn.aframe.io/a-painter/images/floor.jpg"
+        ></a-plane>
+
+        <a-plane
+          class="clickable"
+          position="0 0 0"
+          width="1"
+          height="1"
+          src="#img2"
+          material="color: #fff"
+          media-button="src: https://cdn.aframe.io/a-painter/images/sky.jpg"
+        ></a-plane>
+
+        <a-plane
+          class="clickable"
+          position="2 0 0"
+          width="1"
+          height="1"
+          src="#img3"
+          material="color: #fff"
+          media-button="src: https://cdn.aframe.io/a-painter/images/floor_normal.jpg"
+        ></a-plane>
+
+        <a-plane
+          class="clickable"
+          position="4 0 0"
+          width="1"
+          height="1"
+          color="#fff"
+          media-button="src: https://cdn.aframe.io/videos/360-video.mp4"
+        >
+          <a-text
+            value="Video"
+            align="center"
+            color="#000"
+            width="2"
+            position="0 0 0.1"
+          ></a-text>
+        </a-plane>
+      </a-entity>
+
+      <!-- Title -->
+      <a-text
+        value="Interactive 3D Media Viewer"
+        position="0 4.8 -5"
+        align="center"
+        width="8"
         color="#FFD700"
-        metalness="0.9"
-        roughness="0.1"
-        interactive-object="label: Golden Pyramid"
-        animation="property: position; to: 0 1.3 -3; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
-      ></a-cone>
-
-      <!-- Teleport points -->
-      <a-cylinder
-        class="teleport"
-        position="-4 0.1 3"
-        radius="0.5"
-        height="0.2"
-        color="#4CC3D9"
-        opacity="0.8"
-        teleport-point="target: -4 1.6 3"
-      ></a-cylinder>
-
-      <a-cylinder
-        class="teleport"
-        position="4 0.1 3"
-        radius="0.5"
-        height="0.2"
-        color="#4CC3D9"
-        opacity="0.8"
-        teleport-point="target: 4 1.6 3"
-      ></a-cylinder>
-
-      <a-cylinder
-        class="teleport"
-        position="0 0.1 -6"
-        radius="0.5"
-        height="0.2"
-        color="#4CC3D9"
-        opacity="0.8"
-        teleport-point="target: 0 1.6 -6"
-      ></a-cylinder>
+      ></a-text>
     </a-scene>
   </body>
 </html>
