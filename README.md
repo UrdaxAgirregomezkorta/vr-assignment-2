@@ -1,31 +1,27 @@
-# VR Interactive Gallery
+# Interactive 3D Media Viewer
 
 ## Overview
-This is a **VR environment** created with **A-Frame**, featuring several interactive 3D objects and teleportation points.  
-Users can **gaze, click, and move around** to explore the scene.
+This project creates a simple **VR user interface** using **A-Frame**.  
+The user can select images or a video from a 3D menu and view them on a large virtual screen.
 
 ## Features
-- **Three interactive 3D objects**:
-  - 🟣 *Crystal Sphere* — a rotating pink sphere.
-  - 🟩 *Emerald Cube* — a spinning green cube.
-  - 🟨 *Golden Pyramid* — a floating golden cone.
-- **Interactions**:
-  - When you look at an object, it smoothly **grows in size**.
-  - When you stop looking, it **shrinks back**.
-  - When you click it, its color **flashes briefly**.
-  - Each object displays a **short label** with its name.
-- **Navigation**:
-  - Click on teleport pads to **move around the gallery**.
-- **Continuous animations** (rotation and floating).
+- **Large display screen** shows the selected media (image or video).
+- **Four interactive buttons**:
+  - Image 1 (floor texture)
+  - Image 2 (sky)
+  - Image 3 (floor normal map)
+  - Video (360° environment)
+- Buttons react to hover and click (scale and color feedback).
+- Works with **laser-controls** (VR controllers) and **hand-tracking-controls**.
+- Simple lighting and background environment.
 
 ## Technologies
-- [A-Frame 1.4.0](https://aframe.io/)
+- A-Frame 1.4.0
 - HTML5 + JavaScript
 
 ## How to Run
-1. Upload `index.html` and this `README.md` to a GitHub repository.
-2. Enable **GitHub Pages** in repository settings.
-3. Visit the generated link to experience the VR scene directly in your browser.
+1. Open `index.html` in your browser (supports WebXR-enabled browsers like Chrome).
+2. Optionally host it online (e.g., GitHub Pages) to access in a VR headset.
 
 ## Author
-Created by **Urdax Agirregomezkorta**
+Developed by **Urdax Agirregomezkorta**
