@@ -71,33 +71,46 @@
             if (data.mediaType === "video") {
               // Handle video
               const video = document.querySelector("#video1");
+              
+              // Stop any current video
               video.pause();
               video.currentTime = 0;
               
-              // If src is different, update it
-              if (video.getAttribute("src") !== data.src) {
-                video.setAttribute("src", data.src);
+              // Force load if needed
+              if (video.readyState < 2) {
                 video.load();
               }
               
-              // Update screen material with shader flat for video
-              screen.setAttribute("material", {
-                src: "#video1",
-                shader: "flat"
-              });
+              // Update screen material - remove old material first
+              screen.removeAttribute("material");
               
-              // Play with error handling
-              video.play().catch(err => {
-                console.warn("Video playback failed:", err);
-                // Try again after user interaction
-                setTimeout(() => video.play().catch(() => {}), 100);
-              });
+              // Set new material after a brief delay
+              setTimeout(() => {
+                screen.setAttribute("material", {
+                  src: "#video1",
+                  shader: "flat",
+                  side: "double"
+                });
+                
+                // Play video
+                video.play().catch(err => {
+                  console.error("Video playback failed:", err);
+                  // Try clicking on video element directly
+                  video.muted = true;
+                  video.play().catch(e => console.error("Still failed:", e));
+                });
+              }, 50);
+              
             } else {
               // Handle image
-              screen.setAttribute("material", {
-                src: data.src,
-                shader: "flat"
-              });
+              screen.removeAttribute("material");
+              setTimeout(() => {
+                screen.setAttribute("material", {
+                  src: data.src,
+                  shader: "flat",
+                  side: "double"
+                });
+              }, 50);
             }
           });
         },
@@ -184,8 +197,7 @@
           id="media-screen"
           width="6"
           height="3.5"
-          src="#img1"
-          material="shader: flat"
+          material="src: #img1; shader: flat"
         ></a-plane>
       </a-entity>
 
@@ -204,6 +216,7 @@
           playsinline
           webkit-playsinline
           muted
+          autoplay="false"
         ></video>
       </a-assets>
 
