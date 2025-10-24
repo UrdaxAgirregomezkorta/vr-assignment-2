@@ -68,50 +68,15 @@
 
             const screen = document.querySelector("#media-screen");
             
-            if (data.mediaType === "video") {
-              // Handle video
-              const video = document.querySelector("#video1");
-              
-              // Stop any current video
-              video.pause();
-              video.currentTime = 0;
-              
-              // Force load if needed
-              if (video.readyState < 2) {
-                video.load();
-              }
-              
-              // Update screen material - remove old material first
-              screen.removeAttribute("material");
-              
-              // Set new material after a brief delay
-              setTimeout(() => {
-                screen.setAttribute("material", {
-                  src: "#video1",
-                  shader: "flat",
-                  side: "double"
-                });
-                
-                // Play video
-                video.play().catch(err => {
-                  console.error("Video playback failed:", err);
-                  // Try clicking on video element directly
-                  video.muted = true;
-                  video.play().catch(e => console.error("Still failed:", e));
-                });
-              }, 50);
-              
-            } else {
-              // Handle image
-              screen.removeAttribute("material");
-              setTimeout(() => {
-                screen.setAttribute("material", {
-                  src: data.src,
-                  shader: "flat",
-                  side: "double"
-                });
-              }, 50);
-            }
+            // Handle image
+            screen.removeAttribute("material");
+            setTimeout(() => {
+              screen.setAttribute("material", {
+                src: data.src,
+                shader: "flat",
+                side: "double"
+              });
+            }, 50);
           });
         },
       });
@@ -207,17 +172,6 @@
         <img id="img2" src="https://cdn.aframe.io/a-painter/images/sky.jpg" crossorigin="anonymous" />
         <img id="img3" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/city.jpg" crossorigin="anonymous" />
         <img id="img4" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg" crossorigin="anonymous" />
-        <video
-          id="video1"
-          src="https://cdn.aframe.io/videos/atlantis.mp4"
-          crossorigin="anonymous"
-          loop="true"
-          preload="auto"
-          playsinline
-          webkit-playsinline
-          muted
-          autoplay="false"
-        ></video>
       </a-assets>
 
       <!-- Control Panel Background -->
@@ -302,20 +256,13 @@
           width="1.2"
           height="1.2"
           depth="0.15"
-          color="#000"
-          material="color: #1a1a1a"
-          media-button="src: https://cdn.aframe.io/videos/atlantis.mp4; mediaType: video"
+          src="#img4"
+          material="color: #fff"
+          media-button="src: https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg; mediaType: image"
           shadow="cast: true"
         >
           <a-text
-            value="▶ VIDEO"
-            align="center"
-            color="#FFD700"
-            width="2.5"
-            position="0 0 0.08"
-          ></a-text>
-          <a-text
-            value="Play Video"
+            value="Image 4"
             align="center"
             color="#FFD700"
             width="3"
