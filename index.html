@@ -80,18 +80,24 @@
                 video.load();
               }
               
-              // Update screen material
-              screen.setAttribute("material", "src", "#video1");
+              // Update screen material with shader flat for video
+              screen.setAttribute("material", {
+                src: "#video1",
+                shader: "flat"
+              });
               
               // Play with error handling
               video.play().catch(err => {
                 console.warn("Video playback failed:", err);
                 // Try again after user interaction
-                setTimeout(() => video.play(), 100);
+                setTimeout(() => video.play().catch(() => {}), 100);
               });
             } else {
               // Handle image
-              screen.setAttribute("material", "src", data.src);
+              screen.setAttribute("material", {
+                src: data.src,
+                shader: "flat"
+              });
             }
           });
         },
@@ -197,6 +203,7 @@
           preload="auto"
           playsinline
           webkit-playsinline
+          muted
         ></video>
       </a-assets>
 
