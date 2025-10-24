@@ -72,10 +72,23 @@
               // Handle video
               const video = document.querySelector("#video1");
               video.pause();
-              video.setAttribute("src", data.src);
-              video.load();
-              video.play();
+              video.currentTime = 0;
+              
+              // If src is different, update it
+              if (video.getAttribute("src") !== data.src) {
+                video.setAttribute("src", data.src);
+                video.load();
+              }
+              
+              // Update screen material
               screen.setAttribute("material", "src", "#video1");
+              
+              // Play with error handling
+              video.play().catch(err => {
+                console.warn("Video playback failed:", err);
+                // Try again after user interaction
+                setTimeout(() => video.play(), 100);
+              });
             } else {
               // Handle image
               screen.setAttribute("material", "src", data.src);
@@ -178,9 +191,12 @@
         <img id="img4" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/cubes.jpg" crossorigin="anonymous" />
         <video
           id="video1"
+          src="https://cdn.aframe.io/videos/atlantis.mp4"
           crossorigin="anonymous"
           loop="true"
           preload="auto"
+          playsinline
+          webkit-playsinline
         ></video>
       </a-assets>
 
